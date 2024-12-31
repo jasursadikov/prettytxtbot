@@ -1,8 +1,10 @@
 from telegram import InlineQueryResultArticle, InputTextMessageContent, Update
 from telegram.ext import Application, ContextTypes, InlineQueryHandler
 import os
-from datetime import datetime
+import logging
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 request_no = 0
 
 TOKEN = os.getenv('TOKEN')
@@ -17,7 +19,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 	user_id = update.inline_query.from_user.id
 	username = update.inline_query.from_user.username
 
-	log(f'[#{request_no}] User ID: {user_id} | Username: @{username}')
+	logger.info(f'[#{request_no}] User ID: {user_id} | Username: @{username}')
 	request_no += 1
 
 	try:
@@ -30,7 +32,7 @@ async def inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 			index += 1
 		await update.inline_query.answer(results)
 	except Exception as e:
-		log(e)
+		logger.error(e)
 		pass
 
 
@@ -54,15 +56,9 @@ styles = {
 	"Boxed": "🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789"
 }
 
-
-def log(str) -> None:
-	now = datetime.now()
-	print(now, " ", str)
-
-
 if __name__ == '__main__':
-	log('Text Prettifier bot started!')
+	logger.info('Text Prettifier bot started!')
 	application = Application.builder().token(TOKEN).build()
 	application.add_handler(InlineQueryHandler(inline_query))
 	application.run_polling(allowed_updates=Update.ALL_TYPES)
-	log('Bot is terminated!')
+	logger.info('Bot is terminated!')
